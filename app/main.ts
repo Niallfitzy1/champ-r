@@ -27,6 +27,9 @@ import { appConfig } from './utils/config';
 import { ifIsCNServer, LcuWatcher } from './utils/lcu';
 import { LanguageList, LanguageSet } from './constants/langs';
 import { LcuEvent } from './constants/events';
+import fs from 'fs';
+
+const updater = require('electron-updater');
 
 const isMac = process.platform === 'darwin';
 const isDev = process.env.IS_DEV_MODE === `true`;
@@ -375,6 +378,14 @@ async function checkUpdates() {
     return;
   }
 
+  if (
+    updater.autoUpdater.app &&
+    updater.autoUpdater.app.appUpdateConfigPath &&
+    !fs.existsSync(updater.autoUpdater.app.appUpdateConfigPath)
+  ) {
+    return;
+  }
+
   try {
     setInterval(async () => {
       await autoUpdater.checkForUpdates();
@@ -395,6 +406,14 @@ function registerUpdater() {
   electronLogger.transports.file.level = 'info';
   autoUpdater.logger = electronLogger;
   autoUpdater.autoDownload = false;
+
+  if (
+    updater.autoUpdater.app &&
+    updater.autoUpdater.app.appUpdateConfigPath &&
+    !fs.existsSync(updater.autoUpdater.app.appUpdateConfigPath)
+  ) {
+    return;
+  }
 
   autoUpdater.on('checking-for-update', () => {
     console.log(`Checking update...`);
