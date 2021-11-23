@@ -8,7 +8,7 @@ export async function isUpdateAvailable() {
 
   if (onlineVersion === '') {
     const response = await axios(
-      'https://raw.githubusercontent.com/GeorgeV220/VoteRewards/champ-r/version.md',
+      'https://raw.githubusercontent.com/GeorgeV220/champ-r/master/version.md',
     );
     onlineVersion = response.data;
   }
