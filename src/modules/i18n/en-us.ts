@@ -30,6 +30,7 @@ export default {
     applied: `Applied runes successfully`,
     'please specify lol dir': `Please specify lol directory first.`,
     'ignore system scale': `Ignore system scale (restart required)`,
+    'dark theme': `Enable dark theme (restart required)`,
     'restart app': `Restart ChampR`,
     aram: `ARAM`,
     urf: `URF`,

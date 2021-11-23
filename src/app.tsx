@@ -3,7 +3,7 @@ import { HashRouter as Router, Switch, Route } from 'react-router-dom';
 
 import { Client as Styletron } from 'styletron-engine-atomic';
 import { Provider as StyletronProvider } from 'styletron-react';
-import { LightTheme, BaseProvider } from 'baseui';
+import { DarkTheme, LightTheme, BaseProvider } from 'baseui';
 import { SnackbarProvider, PLACEMENT } from 'baseui/snackbar';
 
 import AppContext from 'src/share/context';
@@ -40,8 +40,11 @@ const App = () => {
 
     getVerAndItems();
 
-    window.bridge.on(`update-available`, (info: any) => {
-      const notify = new Notification(`New version available: ${info.version}`);
+    window.bridge.on(`update-available`, (version: string) => {
+      //const notify = new Notification(`New version available: ${version}`);
+      const notify = new Notification('champ-r', {
+        body: `New version available: ${version}`,
+      });
 
       notify.onclick = () => {
         window.shell.openExternal(`https://github.com/GeorgeV220/champ-r/releases`);
@@ -65,7 +68,8 @@ const App = () => {
   return (
     <AppContext.Provider value={contextValue}>
       <StyletronProvider value={engine}>
-        <BaseProvider theme={LightTheme}>
+        <BaseProvider
+          theme={window.bridge.appConfig.get('darkTheme', false) ? DarkTheme : LightTheme}>
           <SnackbarProvider
             placement={PLACEMENT.bottom}
             overrides={{

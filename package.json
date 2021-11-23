@@ -47,7 +47,7 @@
     "modify:version": "node scripts/modify-build-version.js"
   },
   "dependencies": {
-    "axios": "^0.21.4",
+    "axios": "^0.24.0",
     "baseui": "9.116.0",
     "cheerio": "^1.0.0-rc.3",
     "chokidar": "^3.5.2",
@@ -58,7 +58,6 @@
     "electron-log": "4.4.1",
     "electron-store": "8.0.0",
     "electron-unhandled": "^3.0.0",
-    "electron-updater": "4.3.8",
     "electron-util": "0.17.2",
     "feather-icons": "^4.28.0",
     "fs-extra": "^10.0.0",

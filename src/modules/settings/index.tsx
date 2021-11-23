@@ -43,6 +43,7 @@ export default function Settings() {
   const [ignoreSystemScale, setIgnoreSystemScale] = useState(
     window.bridge.appConfig.get(`ignoreSystemScale`),
   );
+  const [theme, setTheme] = useState(window.bridge.appConfig.get(`darkTheme`));
 
   const recorder = useRef(false);
 
@@ -58,6 +59,12 @@ export default function Settings() {
     setIgnoreSystemScale(e.currentTarget.checked);
     window.bridge.appConfig.set(`ignoreSystemScale`, e.currentTarget.checked);
     window.bridge.sendMessage(`popup:reset-position`);
+    recorder.current = true;
+  };
+
+  const onTheme = (e: FormEvent<HTMLInputElement>) => {
+    setTheme(e.currentTarget.checked);
+    window.bridge.appConfig.set(`darkTheme`, e.currentTarget.checked);
     recorder.current = true;
   };
 
@@ -120,6 +127,31 @@ export default function Settings() {
           },
         }}>
         {t(`ignore system scale`)}
+      </Checkbox>
+
+      <Checkbox
+        checked={theme}
+        checkmarkType={STYLE_TYPE.toggle_round}
+        onChange={onTheme}
+        overrides={{
+          Root: {
+            style: () => ({
+              height: `48px`,
+              display: `flex`,
+              alignItems: `center`,
+              marginTop: `1em`,
+            }),
+          },
+          Label: {
+            style: ({ $theme }) => {
+              return {
+                fontSize: $theme.typography.ParagraphMedium,
+                fontWeight: 600,
+              };
+            },
+          },
+        }}>
+        {t(`dark theme`)}
       </Checkbox>
 
       <div className={s.ctrlBtns}>

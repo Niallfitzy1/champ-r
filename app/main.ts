@@ -14,11 +14,10 @@ import {
   nativeTheme,
   dialog,
 } from 'electron';
-import { autoUpdater } from 'electron-updater';
+import { isUpdateAvailable, getOnlineVersion } from './utils/updater';
 import contextMenu from 'electron-context-menu';
 import unhandled from 'electron-unhandled';
 import debug from 'electron-debug';
-import electronLogger from 'electron-log';
 
 import { IPopupEventData, IRuneItem } from '@interfaces/commonTypes';
 
@@ -27,9 +26,6 @@ import { appConfig } from './utils/config';
 import { ifIsCNServer, LcuWatcher } from './utils/lcu';
 import { LanguageList, LanguageSet } from './constants/langs';
 import { LcuEvent } from './constants/events';
-import fs from 'fs';
-
-const updater = require('electron-updater');
 
 const isMac = process.platform === 'darwin';
 const isDev = process.env.IS_DEV_MODE === `true`;
@@ -361,89 +357,17 @@ async function getMachineId() {
   return id;
 }
 
-function isNetworkError(errorObject: Error) {
-  return errorObject.message.includes(`net::ERR_`);
-  // errorObject.message === 'net::ERR_INTERNET_DISCONNECTED' ||
-  // errorObject.message === 'net::ERR_PROXY_CONNECTION_FAILED' ||
-  // errorObject.message === 'net::ERR_CONNECTION_RESET' ||
-  // errorObject.message === 'net::ERR_CONNECTION_CLOSE' ||
-  // errorObject.message === 'net::ERR_NAME_NOT_RESOLVED' ||
-  // errorObject.message === 'net::ERR_CONNECTION_TIMED_OUT' ||
-  // errorObject.message === 'net::ERR_EMPTY_RESPONSE'
-}
-
 async function checkUpdates() {
   if (isDev) {
     console.log(`Skipped updated check for dev mode.`);
     return;
   }
 
-  if (
-    updater.autoUpdater.app &&
-    updater.autoUpdater.app.appUpdateConfigPath &&
-    !fs.existsSync(updater.autoUpdater.app.appUpdateConfigPath)
-  ) {
-    return;
-  }
-
-  try {
-    setInterval(async () => {
-      await autoUpdater.checkForUpdates();
-    }, 1000 * 60 * 60 * 4);
-
-    await autoUpdater.checkForUpdates();
-  } catch (err) {
-    if (isNetworkError(err)) {
-      console.error('Network Error');
-      return;
-    }
-
-    console.error(err == null ? 'unknown' : (err.stack || err).toString());
-  }
-}
-
-function registerUpdater() {
-  electronLogger.transports.file.level = 'info';
-  autoUpdater.logger = electronLogger;
-  autoUpdater.autoDownload = false;
-
-  if (
-    updater.autoUpdater.app &&
-    updater.autoUpdater.app.appUpdateConfigPath &&
-    !fs.existsSync(updater.autoUpdater.app.appUpdateConfigPath)
-  ) {
-    return;
-  }
-
-  autoUpdater.on('checking-for-update', () => {
-    console.log(`Checking update...`);
-  });
-
-  autoUpdater.on('update-available', (info) => {
-    console.log(`${info.version}`);
+  if ((await isUpdateAvailable()) === 1) {
     if (mainWindow && mainWindow.webContents) {
-      mainWindow.webContents.send(`update-available`, info);
+      mainWindow.webContents.send(`update-available`, getOnlineVersion());
     }
-  });
-
-  autoUpdater.on('update-not-available', (info) => {
-    console.error(`Update not available: ${info.version}`);
-  });
-
-  autoUpdater.on(`update-downloaded`, (info) => {
-    console.info(`Update downloaded: ${info.version}`);
-    if (mainWindow && mainWindow.webContents) {
-      mainWindow.webContents.send(`update-downloaded`, info);
-    }
-  });
-
-  autoUpdater.on('error', (err) => {
-    console.error('Error in auto-updater. ' + err);
-  });
-
-  ipcMain.on(`install-update`, () => {
-    autoUpdater.quitAndInstall(false);
-  });
+  }
 }
 
 (async () => {
@@ -483,7 +407,6 @@ function registerUpdater() {
   });
 
   registerMainListeners();
-  registerUpdater();
 
   await makeTray();
   const userId = await getMachineId();

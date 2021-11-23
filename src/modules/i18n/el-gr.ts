@@ -30,6 +30,7 @@ export default {
     applied: `Εφαρμόστηκαν με επιτυχία οι ρούνοι`,
     'please specify lol dir': `Καθορίστε πρώτα τον κατάλογο του lol.`,
     'ignore system scale': `Παράβλεψη κλίμακας συστήματος (απαιτείται επανεκκίνηση)`,
+    'dark theme': `Ενεργοποιήστε το σκούρο θέμα (απαιτείται επανεκκίνηση)`,
     'restart app': `Επανεκκινήστε το ChampR`,
     aram: `ARAM`,
     urf: `URF`,
